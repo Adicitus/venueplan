@@ -1,0 +1,18 @@
+<div class="venue">
+	<div class="venuelabel"> <<$VenueName>> </div>
+	
+	<div class="classes">
+	<<
+		$Classes | Sort { $_.course_date.cint_startdate } | % {
+			$class = $_
+			Render-Template "$TemplateDir\Class.template.html" @{
+				SiteName = $SiteName
+				Class = $class
+				PeriodStart=$VenuePlan.StartDate
+				PeriodEnd=$VenuePlan.EndDate
+			}
+		}
+	>>
+	</div>
+	
+</div>

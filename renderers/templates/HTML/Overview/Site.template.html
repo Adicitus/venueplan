@@ -1,0 +1,19 @@
+<div class="site">
+	<h2><<$SiteName>></h2>
+
+	<div class="classes">
+	<<
+		$VenuePlan.BySiteName[$siteName] | ? {
+			!$_.Meta.Relations.ChildOf
+		} | Sort {
+			$_.course_date.cint_startdate
+		} | % {
+			$class = $_
+			
+			Render-Template "$TemplateDir\Class.template.html" @{
+				Class = $class
+			}
+		}
+	>>
+	</div>
+</div>

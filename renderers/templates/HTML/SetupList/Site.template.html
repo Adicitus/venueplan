@@ -1,0 +1,17 @@
+<div class="site">
+	<h2><<$SiteName>></h2>
+
+	<div class="venues">
+	<<
+		$VenuePlan.VenueNamesBySite[$siteName] | Sort | % {
+			$venueName = $_
+			
+			Render-Template "$TemplateDir\Venue.template.html" @{
+				VenueName = $venueName;
+				Classes = $VenuePlan.ByVenueName[$venueName]
+				$SiteName = $siteName
+			}
+		}
+	>>
+	</div>
+</div>

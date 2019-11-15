@@ -1,0 +1,24 @@
+<fetch <<
+
+	Render-Template "$TemplateDir\attributes.a.tmplt.xml" @{
+		AcceptedAttributes = @( "mapping" )
+		Defaults = @{ mapping = "logical" }
+		Entity = $Values
+	}
+	
+>> >
+	
+	<< 
+		if ($Values.ContainsKey("Entity")) {
+			Render-Template "$TemplateDir\entity.e.tmplt.xml" $Entity
+		} else {
+			# If the object used to render this template does not contain
+			# an "Entity" key, assume that this object describes the Enity.
+			# This saves some unnecessary boilerplate since we don't have
+			# to specify the fetchlevel object if we don't need the
+			# functionality it provides (primarily ordering).
+			Render-Template "$TemplateDir\entity.e.tmplt.xml" $Values
+		}
+	>>
+
+</fetch>

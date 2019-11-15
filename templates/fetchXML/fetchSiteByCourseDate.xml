@@ -1,0 +1,7 @@
+<fetch mapping="logical">
+	<entity name="site">
+		<filter type="and">
+			<condition attribute="siteid" operator="eq" value="<<$course_date.cint_site_id.id.Guid>>" />
+		</filter>
+	</entity>
+</fetch>

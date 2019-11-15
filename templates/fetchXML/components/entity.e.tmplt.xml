@@ -1,0 +1,42 @@
+<entity <<
+	
+	Render-Template "$TemplateDir\attributes.a.tmplt.xml" @{
+		AcceptedAttributes = @( "name" )
+		Defaults = @{}
+		Entity = $Values
+	}
+	
+>> >
+	<<
+		$Attributes | ? { $_ } | % {
+			Render-Template "$TemplateDir\attribute.e.tmplt.xml" @{
+				Name=$_
+			}
+		}
+	>>
+	
+	<<
+		# Shortcut allowing us to write conditions directly into the
+		# entity level, and skip specifying 1 level of filters if we
+		# do not need the functionality it provides.
+		if ($Values.containsKey("Conditions")) {
+			$filter = @{
+				Conditions = $Conditions
+			}
+			
+			if ($Values.ContainsKey("Filters")) {
+				$filter.Filters = $Filters
+			}
+			
+			Render-Template "$TemplateDir\filter.e.tmplt.xml" @{
+				Filter = $filter
+			}
+		} else {		
+			$Filters | ? { $_ } | % {
+				Render-Template "$TemplateDir\filter.e.tmplt.xml" @{
+					Filter = $_
+				}
+			}
+		}
+	>>
+</entity>

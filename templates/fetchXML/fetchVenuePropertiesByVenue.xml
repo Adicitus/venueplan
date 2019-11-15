@@ -1,0 +1,9 @@
+<fetch mapping="logical">
+	<entity name="cint_venue_property" >
+		<attribute name="cint_value" />
+		<attribute name="cint_venue_attribute_id" />
+		<filter type="and">
+			<condition attribute="cint_venue_id" operator="eq" value="<<$venue.cint_venueid>>" />
+		</filter>
+	</entity>
+</fetch>

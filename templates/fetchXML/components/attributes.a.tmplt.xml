@@ -1,0 +1,25 @@
+<<
+	<#
+	"attributes.a" template
+	Aggregate template to render multiple attributes for an entity.
+
+	Values:
+		- AcceptedAttributes: Array of names that should be rendered as attribute.a if present.
+		- Defaults: Default values to be used if there are no specified values for an accepted attribute.
+		- Entity: Entity to render attributes for.
+	#>
+	$AcceptedAttributes | ? {
+		$Entity.ContainsKey($_) -or $defaults.ContainsKey($_)
+	} | % {
+		$name = $_
+	
+		if (!($value = $Entity.$name)) {
+			$value = $defaults.$name
+		}
+	
+		Render-Template "$TemplateDir\attribute.a.tmplt.xml" @{
+			Name=$name
+			Value=$value
+		}
+	}
+>>

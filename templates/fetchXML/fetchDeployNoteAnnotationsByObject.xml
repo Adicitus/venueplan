@@ -1,0 +1,10 @@
+<fetch mapping="logical">
+	<entity name="annotation" >
+		<attribute name="subject" />
+		<attribute name="notetext" />
+		<filter type="and">
+			<condition attribute="objectid" operator="eq" value="<<$object.id>>" />
+			<condition attribute="subject" operator="eq" value="deploy.note" />
+		</filter>
+	</entity>
+</fetch>

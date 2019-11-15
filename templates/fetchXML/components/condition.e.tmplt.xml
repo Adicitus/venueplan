@@ -1,0 +1,9 @@
+<<
+	$template = if ( $V -is [array] ) {
+		"$TemplateDir\condition_multivalue.e.tmplt.xml"
+	} else {
+		"$TemplateDir\condition_singlevalue.e.tmplt.xml"
+	}
+	
+	Render-Template  $template $Values
+>>

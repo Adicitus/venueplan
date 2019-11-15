@@ -1,0 +1,7 @@
+<fetch mapping="logical">
+	<entity name="annotation" >
+		<filter type="and">
+			<condition attribute="objectid" operator="eq" value="<<$object.id>>" />
+		</filter>
+	</entity>
+</fetch>
