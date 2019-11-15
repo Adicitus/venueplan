@@ -8,14 +8,15 @@ function makeVenuePlan {
 		[Parameter(ParameterSetName="CalendarWeeks", Position=2)][Int] $StartFrom = 0,
 		[String]$Name		= "VenuePlan",
 		[ValidateSet("SetupList", "Overview", "SetupListHTML", "OverviewHTML")][String]$RenderAs = "SetupListHTML",
-		$Path		= "$env:USERPROFILE\AppData\local\Temp\$Name.html"
+		[string]$Path		= "$env:USERPROFILE\AppData\local\Temp\$Name.html",
+		[pscredential]$Credential = $null
 	)
 
 	$startTime = [datetime]::now
 
 	$loadStartTime = [datetime]::now
 
-	. "$PSScriptRoot\..\Get-VenuePlan.ps1"
+	. "$PSScriptRoot\..\Get-VenuePlan.ps1" -Credential $Credential
 
 	$loadFinishTime = [datetime]::now
 	
