@@ -1,1 +1,9 @@
-<attribute name="<<$Name>>" />
+<attribute <<
+	
+	Render-Template "$TemplateDir\attributes.a.tmplt.xml" @{
+		AcceptedAttributes = @( "name", "alias" )
+		Defaults = @{}
+		Entity = $Values
+	}
+	
+>> />

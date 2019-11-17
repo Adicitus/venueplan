@@ -1,0 +1,19 @@
+<link-entity <<
+	Render-Template "$TemplateDir\attributes.a.tmplt.xml" @{
+		Entity=$Values
+		AcceptedAttributes=@(
+			"to"
+			"from"
+			"name"
+			"link-type"
+			"alias"
+		)
+		Defaults=@{}
+	}
+>> >
+
+	<<
+		Render-Template "$TemplateDir\entity.e.body.tmplt.xml" $Values
+	>>
+	
+</link-entity>

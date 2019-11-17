@@ -9,7 +9,7 @@
 		- Entity: Entity to render attributes for.
 	#>
 	$AcceptedAttributes | ? {
-		$Entity.ContainsKey($_) -or $defaults.ContainsKey($_)
+		$Entity.ContainsKey($_) -or $Defaults.ContainsKey($_)
 	} | % {
 		$name = $_
 	
