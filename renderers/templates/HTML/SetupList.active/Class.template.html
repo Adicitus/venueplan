@@ -1,0 +1,204 @@
+
+<< "Starting render of class: {0}" -f $Class.classnumber | shoutout >>
+
+<<
+
+$cd = $Class
+$week = @("M", "T", "O", "T", "F")
+$sd = $cd.startdate
+$ed = $cd.enddate
+$si = $sd.DayOfWeek.value__
+$ei = $ed.DayOfWeek.value__
+
+for ($i = 1; $i -le 5; $i++) {
+	if ( ($i -lt $si) -or ($i -gt $ei) ) {
+		$week[$i-1] = "_"
+	}
+}
+
+$values.Week = $week
+
+
+$renderProperty = {
+	param( $c, $l, $v )
+	
+	Render-Template "$TemplateDir\Property.template.html" @{
+		Classes = $c
+		Label 	= $l
+		Value	= $v
+	}
+}
+
+$Values.renderProperty = $renderProperty
+
+$renderPreFormatted = {
+	param( $c, $v )
+	
+	Render-Template "$TemplateDir\PreFormatted.template.html" @{
+		Classes = $c
+		Value	= $v
+	}
+}
+
+$Values.renderPreFormatted = $renderPreFormatted
+
+$Values.renderAnnotations = {
+	param($objectid, $subject, $tag)
+	$annotations = GetContent @{
+		name="annotation"
+		
+		Attributes="notetext","subject"
+		
+		Conditions=@(
+			@{ a="objectid"; o="eq"; v=$objectid }
+			@{ a="subject"; o="eq"; v=$subject }
+		)
+	}
+
+	$annotations | % {
+		& $Values.renderPreFormatted $tag $_.notetext
+	}
+}
+
+>>
+
+<div class="class">
+	<div class="class_status">
+		<div class="weekdays">
+			<<
+				$Values.Week | % {
+					$tag = if ($_ -eq "_") { "empty" }
+					& $Values.renderPreFormatted "day $tag" $_
+				}
+			>>
+		</div>
+		<div class="period"><< "{0:yyyy-MM-dd HH:mm} -> {1:yyyy-MM-dd HH:mm}" -f $Class.startdate.ToLocalTime(), $Class.enddate.ToLocalTime() >></div>
+		<div class="checklist">
+			<div class="checkbox"></div>
+			<div class="checkbox"></div>
+			<div class="checkbox"></div>
+			<div class="checkbox"></div>
+			<div class="checkbox"></div>
+		</div>
+	</div>
+	<div class="class_nameid">
+		<div class="classname">
+			<<
+				$Class.classtitle
+			>>
+		</div>
+		<div class="classid">
+			<a
+				href="<<
+					'http://crm.addskills.se/Cornerstone/main.aspx?etc=10020&extraqs=%3Fetc%3D10020%26id%3D%257b{0}%257d&pagetype=entityrecord' -f $class.Id
+				>>"
+				target="<<$class.id>>"
+			>
+			<<$Class.classnumber>>
+			</a>
+		</div>
+	</div>
+	<div class="class_details">
+		
+		<<
+		
+			$renderProperty = $Values.renderProperty
+			
+			#$definitiveStudents = $Class.Reservations | ? { $_.cint_reservationstatus -eq 20 }
+			
+			
+			$definitiveStudents = GetContent @{
+				name="cint_course_reservation"
+				
+				Attributes = @(
+					@{ name="cs_remote_participant"; alias="is_athome" }
+					@{ name="cs_course_reservation_id"; alias="satellite_id" }
+				)
+				
+				Conditions=@(
+					@{a="cint_course_date_id"; o="eq"; v=$class.id}
+					@{a="cint_reservationstatus"; o="eq"; v=20}
+				)
+			}
+			
+			$studentCount = $definitiveStudents | measure | % Count
+			$masterStudents = $definitiveStudents | ? { !($_.is_athome -or $_.satellite_id) }
+			$studentCountAtHome = $definitiveStudents | ? { $_.is_athome } | Measure | % Count
+			$remoteStudents = @{}
+			
+			$definitiveStudents | % {
+				$s = $_
+				if ($s.datellite_id) {
+					
+					$venuebooking = GetContent $s.satellite_id "cint_venue_booking"
+					$venue = GetContent $venuebooking.cint_venue_id "cint_venue"
+					
+					$city = $venue.cint_visitingcity
+					if (!$remoteStudents[$city]) {
+						$remoteStudents[$city] = @()
+					}
+					
+					$remoteStudents[$city] += $s
+				}
+			}
+			
+			$isSatellite = $remoteStudents.Keys -contains $SiteName
+			$isMaster = !$isSatellite -and ( ($remoteStudents.Keys -gt 0) -or ($studentCountAtHome -gt 0) )
+			
+			$localStudentCount = if ($isSatellite) {
+				$remoteStudents[$SiteName] | measure | % Count
+			} else {
+				$masterStudents | measure | % Count
+			}
+			
+			$atHomeValue = if ($studentCountAtHome) { ("{0}x@Home" -f $studentCountAtHome) } else { "" }
+			$satelliteValue = ($remoteStudents.Keys | % { "{1}x{0}" -f $_, $remoteStudents[$_].Count }) -join " "
+			$localStudentValue = if ($isSatellite) { "{0} [LC]" -f $localStudentCount } else { "{0}" -f $localStudentCount }
+			$v = if ($isSatellite -or !$isMaster) {
+				"{0}" -f @(
+					$localStudentValue
+				)
+			} else {
+				"{0} + {1} {2}" -f @(
+					$localStudentValue,
+					$atHomeValue,
+					$satelliteValue
+				)
+			}
+			
+			& $renderProperty "reservations" "Deltagare:" $v
+			
+			& $renderProperty "instructorname" "Instruktör:" $Class.teachers
+			
+		>>
+	</div>
+	
+	<div class="class_notes ">
+		<div class="course_notes ">
+<<
+	& $Values.renderAnnotations $Class.courseid "deploy.note" "note"
+>>
+		</div>
+		
+		<div class="course_date_notes">
+<<
+	& $Values.renderAnnotations $Class.id "deploy.note" "note"
+>>
+		</div>
+	</div>
+	
+	<div class="class_meta">
+		<div class="course_meta">
+<<
+	& $Values.renderAnnotations $Class.courseid "deploy.meta" "metadata"
+>>
+		</div>
+		<div class="course_date_meta">
+<<
+	& $Values.renderAnnotations $Class.id "deploy.meta" "metadata"
+>>
+		</div>
+	</div>
+</div>
+
+<< "Finished render of class: {0}" -f $Class.classnumber | shoutout >>

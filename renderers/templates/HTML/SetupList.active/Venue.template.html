@@ -1,0 +1,27 @@
+
+<< "Starting render of Venue: {0}" -f $VenueName | shoutout >>
+
+<div class="venue">
+	<div class="venuelabel"> <<$VenueName>> </div>
+	
+	<div class="classes">
+	<<
+		$Classes | Sort startdate | % {
+			$class = $_
+			
+			if ( ($bookings[$class.Id] | ? venuename -eq $VenueName )) {
+				Render-Template "$TemplateDir\Class.template.html" @{
+					SiteName = $SiteName
+					VenueName = $VenueName
+					Class = $class
+					PeriodStart=$StartDate
+					PeriodEnd=$EndDate
+				}
+			}
+		}
+	>>
+	</div>
+	
+</div>
+
+<< "Finished render of Venue: {0}" -f $VenueName | shoutout >>
