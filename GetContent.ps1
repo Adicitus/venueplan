@@ -1,11 +1,43 @@
 
 function GetContent {
+	[CmdletBinding()]
 	param(
-		$fetchHash
+		[parameter(Mandatory=$true, ParameterSetName="FetchHash", Position=1)]
+		[hashtable]$FetchHash,
+		[parameter(Mandatory=$true, ParameterSetName="id", Position=1)]
+		[System.guid]$Id,
+		[parameter(Mandatory=$true, ParameterSetName="id", Position=2)]
+		[string]$EntityName
 	)
 	
-	$fetchString = Render-Template "$PSScriptRoot\templates\fetchXML\components\fetch.e.tmplt.xml" $fetchHash
-	$fetchXML = [xml]$fetchString
-	
-	Get-CRMContent -fetchXML $fetchXML
+	switch ($PSCmdlet.ParameterSetName) {
+		
+		"FetchHash" {
+			
+			$startRender = [datetime]::now
+			
+			$fetchString = Render-Template "$PSScriptRoot\templates\fetchXML\components\fetch.e.tmplt.xml" $fetchHash
+			$fetchXML = [xml]$fetchString
+			
+			$endRender = [datetime]::now
+			
+			"Rendering query took {0}ms" -f ($endRender - $startRender).TotalMilliSeconds | Write-Debug
+			
+			$startFetch = [datetime]::now
+			
+			$content = Get-CRMContent -fetchXML $fetchXML
+			
+			$endFetch = [datetime]::now
+			
+			
+			"Fetch query took {0}ms" -f ($endFetch - $startFetch).TotalMilliSeconds | Write-Debug
+			
+			return $content
+		}
+		
+		"Id" {
+			Get-CRMContent -Id $Id -Entity $EntityName
+		}
+		
+	}
 }
