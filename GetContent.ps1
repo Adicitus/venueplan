@@ -1,4 +1,6 @@
 
+. "$PSScriptRoot\FetchHashToFetchXML.ps1"
+
 function GetContent {
 	[CmdletBinding()]
 	param(
@@ -16,8 +18,10 @@ function GetContent {
 			
 			$startRender = [datetime]::now
 			
-			$fetchString = Render-Template "$PSScriptRoot\templates\fetchXML\components\fetch.e.tmplt.xml" $fetchHash
-			$fetchXML = [xml]$fetchString
+			# $fetchString = Render-Template "$PSScriptRoot\templates\fetchXML\components\fetch.e.tmplt.xml" $fetchHash
+			# $fetchXML = [xml]$fetchString
+			
+			$fetchXML = FetchHashToFetchXML $fetchHash
 			
 			$endRender = [datetime]::now
 			
