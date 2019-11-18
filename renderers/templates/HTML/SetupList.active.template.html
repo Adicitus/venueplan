@@ -272,13 +272,6 @@
 		<span> << "{0:yyyy-MM-dd}" -f $StartDate >> till << "{0:yyyy-MM-dd}" -f $EndDate >> </span>
 		
 		<<
-		
-			$ordering = @{
-				"Stockholm" = 1
-				"Göteborg" = 2
-				"Malmö" = 3
-			}
-			$other = 100
 				
 			$classes = GetContent @{
 				name="cint_course_date"
@@ -310,7 +303,7 @@
 					
 						alias="site"
 					
-						Attributes = "name"
+						Attributes = @{ name="name"; alias="sitename" }
 					}
 					@{
 						name="cint_course"
@@ -364,25 +357,35 @@
 				
 			}
 			
-			$bookingsBySite.Keys |  Sort -Unique {
+			$ordering = @{
+				Stockholm = 1
+				Göteborg = 2
+				Malmö = 3
+				_other = 100
+			}
+
+			$sitenames = $bookingsBySite.Keys |  Sort -Unique {
 				if (!($v = $ordering[$_]))  {
-					$v = $other
-					$other += 1
+					$v = $ordering._other
+					$ordering._other += 1
 				}
-				
+
 				return $v
-			} | % {
-				$siteName = $_
+			}
+
+			foreach($sitename in $sitenames) {
 				
 				if ($siteName -eq "LiveClass") {
-					return
+					continue
 				}
-				
-				$currentClasses = $classes | ? { $_.sitename -eq $siteName }
+
+				$currentClasses = $classes | ? {
+					$bookings[$_.id] | ? { $_.sitename -eq $siteName }
+				}
 				
 				Render-Template "$templateDir\SetupList.active\Site.template.html" @{
 					SiteName	= $siteName
-					Classes 	= $classes
+					Classes 	= $currentClasses
 					Bookings 	= $bookings
 					BookingsBySite 	= $bookingsBySite
 				}

@@ -186,19 +186,6 @@ $Values.renderAnnotations = {
 >>
 		</div>
 	</div>
-	
-	<div class="class_meta">
-		<div class="course_meta">
-<<
-	& $Values.renderAnnotations $Class.courseid "deploy.meta" "metadata"
->>
-		</div>
-		<div class="course_date_meta">
-<<
-	& $Values.renderAnnotations $Class.id "deploy.meta" "metadata"
->>
-		</div>
-	</div>
 </div>
 
 << "Finished render of class: {0}" -f $Class.classnumber | shoutout >>
