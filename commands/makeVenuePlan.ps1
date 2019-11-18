@@ -7,52 +7,54 @@ function makeVenuePlan {
 		[Parameter(ParameterSetName="CalendarWeeks", Position=1)][Int] $Weeks = 1,
 		[Parameter(ParameterSetName="CalendarWeeks", Position=2)][Int] $StartFrom = 0,
 		[String]$Name		= "VenuePlan",
-		[ValidateSet("SetupList", "Overview", "SetupListHTML", "OverviewHTML")][String]$RenderAs = "SetupListHTML",
+		[ValidateSet("SetupList")][String]$RenderAs = "SetupList",
 		[string]$Path		= "$env:USERPROFILE\AppData\local\Temp\$Name.html",
 		[pscredential]$Credential = $null
 	)
 
 	$startTime = [datetime]::now
 
-	$loadStartTime = [datetime]::now
-
-	. "$PSScriptRoot\..\Get-VenuePlan.ps1" -Credential $Credential
-
-	$loadFinishTime = [datetime]::now
-	
-	$collateStartTime = [datetime]::now
-
-	$nextWeek = if ($PSCmdlet.ParameterSetName -eq "Period") {
-		Get-VenuePlan -StartDate $StartDate -EndDate $EndDate
-	} else {
-		Get-VenuePlan -Weeks $weeks -StartFrom $StartFrom
+	switch ($PSCmdlet.ParameterSetName) {
+		"Period" {
+			if ($null -eq $StartDate) {
+				$d = ([datetime]::now).Date;
+				$v = (7 - $d.DayOfWeek.value__) % 7 + 1;
+				$StartDate = $d.AddDays($v)
+			}
+			
+			if ($null -eq $EndDate) {
+				$EndDate = $startDate.AddDays(6)
+			}
+		}
+		
+		"CalendarWeeks" {
+			$d = [datetime]::now.Date
+			$daysToNextMonday = ( (7 - $d.dayOfWeek) % 7 ) + 1
+			$nextMonday = $d.AddDays($daysToNextMonday).AddDays($StartFrom * 7)
+			
+			if ($weeks -gt 0) {
+				$StartDate 	= $nextMonday
+				$EndDate	= $nextMonday.AddDays($Weeks * 7 - 1)
+			} else {
+				$EndDate	= $nextMonday - 8 # Last Sunday
+				$StartDate	= $EndDate.AddDays(-($weeks * 7) + 1)
+			}
+		}
 	}
-	
-	$collateFinishTime = [datetime]::now
 
 	
 	$renderStartTime = [datetime]::now
 
-	$renderer  = switch ($RenderAs) {
-		"Overview" {
-			. "$PSScriptRoot\..\renderers\_formatVenuePlanOverview.ps1"
-		}
+	$templatePath  = switch ($RenderAs) {
+		
 		
 		"SetupList" {
-			. "$PSScriptRoot\..\renderers\_formatVenuePlanSetupList.ps1"
-		}
-		
-		"SetupListHTML" {
-			. "$PSScriptRoot\..\renderers\_formatVenuePlanSetupListHTML.ps1"
-		}
-		
-		"OverviewHTML" {
-			. "$PSScriptRoot\..\renderers\_formatVenuePlanOverviewHTML.ps1"
+			"$PSScriptRoot\..\renderers\templates\HTML\SetupList.active.template.html"
 		}
 		
 	}
 	
-	& $renderer $nextWeek > $path
+	Render-Template $templatePath @{ StartDate = $StartDate; EndDate = $EndDate } > $path
 
 	$renderFinishTime = [datetime]::now
 
@@ -61,10 +63,8 @@ function makeVenuePlan {
 
 	$endTime = [datetime]::now
 
-	"Make took {0} total seconds ({1}s loading, {2}s collating, {3}s rendering)." -f @(
+	"Make took {0} total seconds ({1}s rendering)." -f @(
 		($endTime - $startTime).TotalSeconds
-		($loadFinishTime - $loadStartTime).TotalSeconds
-		($collateFinishTime - $collateStartTime).TotalSeconds
 		($renderFinishTime - $renderStartTime).TotalSeconds
 	) | Write-Host
 
