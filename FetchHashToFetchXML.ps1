@@ -123,8 +123,10 @@ function FetchHashToFetchXML {
     ) {
 
         $acceptedAttributes | ? { $hash.ContainsKey($_) -or $defaults.ContainsKey($_) } | % {
-            if ( !($v = $hash[$_]) ) {
-                $v = $defaults[$_]
+            $v = if ( $hash.ContainsKey($_) ) {
+				$hash[$_]
+			} else {
+                $defaults[$_]
             }
             $element.SetAttribute($_, $v)
         } 
