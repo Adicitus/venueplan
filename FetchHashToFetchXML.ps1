@@ -89,15 +89,29 @@ function FetchHashToFetchXML {
         $condition = $doc.createElement("condition")
         $null = $element.AppendChild($condition)
 
-        if ($hash.v -is [array] ) {
-            $hash.v | ? { $_ } | % {
+		$translation = @{
+			a="attribute"
+			o="operator"
+			v="value"
+		}
+
+		$hash2 = @{}
+		
+		"a", "o", "v" | ? { $hash.ContainsKey($_) } | % {
+			$hash2[$translation[$_]] = $hash.$_
+		}
+
+        if ($hash2.value -is [array] ) {
+		
+            _attributes_a $condition $hash2 @("attribute", "operator") @{ }
+            $hash2.value | ? { $_ } | % {
                 $value = $doc.createElement("value")
                 $null = $condition.AppendChild($value)
                 $text = $doc.CreateTextNode($_)
                 $null = $value.AppendChild($text)
             }
         } else {
-            _attributes_a $condition $hash @("a", "o", "v") @{ }
+            _attributes_a $condition $hash2 @("attribute", "operator", "value") @{ }
         }
     }
 
