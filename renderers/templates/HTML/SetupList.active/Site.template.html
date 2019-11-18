@@ -4,38 +4,7 @@
 	<h2><<$SiteName>></h2>
 
 	<div class="venues">
-	<<
-	
-		<# Old code to find venues.
-		#Translate site name to venue category.
-		$category = GetContent @{
-			name="cint_venue_category"
-			
-			Attributes = "cint_name"
-			
-			Conditions = @(
-				@{ a="cint_name"; o="eq"; v=$SiteName }
-				@{ a="statecode"; o="eq"; v=0 }
-			)
-		}
-		
-		#Find all venues with the identified category.
-		$VenuesInSite = GetContent @{
-			name="cint_venue"
-			
-			Attribute = "cint_name"
-			
-			Conditions =@(
-				@{ a="cint_venue_category_id"; o="eq"; v=$category.id }
-				@{ a="statecode"; o="eq"; v=0 }
-			)
-		}
-		
-		$VenuesInSite | % Name
-		
-		#>
-		
-		
+	<<	
 		$VenuesInSite = $Bookings.Keys | % { $Bookings[$_] | ? sitename -eq $SiteName | % venuename } | Sort -Unique
 		
 		$VenuesInSite | % {

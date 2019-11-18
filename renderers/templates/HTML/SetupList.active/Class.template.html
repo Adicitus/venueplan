@@ -104,9 +104,6 @@ $Values.renderAnnotations = {
 		
 			$renderProperty = $Values.renderProperty
 			
-			#$definitiveStudents = $Class.Reservations | ? { $_.cint_reservationstatus -eq 20 }
-			
-			
 			$definitiveStudents = GetContent @{
 				name="cint_course_reservation"
 				
