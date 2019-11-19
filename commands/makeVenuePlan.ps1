@@ -7,7 +7,7 @@ function makeVenuePlan {
 		[Parameter(ParameterSetName="CalendarWeeks", Position=1)][Int] $Weeks = 1,
 		[Parameter(ParameterSetName="CalendarWeeks", Position=2)][Int] $StartFrom = 0,
 		[String]$Name		= "VenuePlan",
-		[ValidateSet("SetupList")][String]$RenderAs = "SetupList",
+		[ValidateSet("SetupListHTML")][String]$RenderAs = "SetupListHTML",
 		[string]$Path		= "$env:USERPROFILE\AppData\local\Temp\$Name.html",
 		[pscredential]$Credential = $null
 	)
@@ -45,16 +45,15 @@ function makeVenuePlan {
 	
 	$renderStartTime = [datetime]::now
 
-	$templatePath  = switch ($RenderAs) {
-		
+	$renderer  = switch ($RenderAs) {
 		
 		"SetupList" {
-			"$PSScriptRoot\..\renderers\templates\HTML\SetupList.active.template.html"
+			& "$PSScriptRoot\..\renderers\_renderSetupListHTML.ps1"
 		}
-		
+
 	}
 	
-	Render-Template $templatePath @{ StartDate = $StartDate; EndDate = $EndDate } > $path
+	& $render $StartDate $EndDate > $path
 
 	$renderFinishTime = [datetime]::now
 
