@@ -47,13 +47,13 @@ function makeVenuePlan {
 
 	$renderer  = switch ($RenderAs) {
 		
-		"SetupList" {
+		"SetupListHTML" {
 			& "$PSScriptRoot\..\renderers\_renderSetupListHTML.ps1"
 		}
 
 	}
 	
-	& $render $StartDate $EndDate > $path
+	& $renderer $StartDate $EndDate > $path
 
 	$renderFinishTime = [datetime]::now
 
