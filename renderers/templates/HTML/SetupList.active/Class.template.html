@@ -109,34 +109,45 @@ $Values.renderAnnotations = {
 				
 				Attributes = @(
 					@{ name="cs_remote_participant"; alias="is_athome" }
-					@{ name="cs_course_reservation_id"; alias="satellite_id" }
 				)
 				
 				Conditions=@(
 					@{a="cint_course_date_id"; o="eq"; v=$class.id}
 					@{a="cint_reservationstatus"; o="eq"; v=20}
 				)
+				
+				LinkEntities = @{
+					"link-type"="outer"
+					name="cint_venue_booking"
+					to="cs_course_reservation_id"
+
+					LinkEntities=@{
+						"link-type"="outer"
+						name="cint_venue"
+						to="cint_venue_id"
+
+						Attributes=@{name="cint_visitingcity"; alias="sitename"}
+					}
+				}
+				
 			}
-			
+
 			$studentCount = $definitiveStudents | measure | % Count
-			$masterStudents = $definitiveStudents | ? { !($_.is_athome -or $_.satellite_id) }
+			$masterStudents = $definitiveStudents | ? { !($_.is_athome -or $_.sitename) }
 			$studentCountAtHome = $definitiveStudents | ? { $_.is_athome } | Measure | % Count
 			$remoteStudents = @{}
 			
 			$definitiveStudents | % {
 				$s = $_
-				if ($s.datellite_id) {
-					
-					$venuebooking = GetContent $s.satellite_id "cint_venue_booking"
-					$venue = GetContent $venuebooking.cint_venue_id "cint_venue"
-					
-					$city = $venue.cint_visitingcity
-					if (!$remoteStudents[$city]) {
-						$remoteStudents[$city] = @()
+				
+				if ($s.sitename) {
+					if ($remoteStudents.containsKey($s.sitename)) {
+						$remoteStudents[$s.sitename] += $s
+					} else {
+						$remoteStudents[$s.sitename] = @($s)
 					}
-					
-					$remoteStudents[$city] += $s
 				}
+				
 			}
 			
 			$isSatellite = $remoteStudents.Keys -contains $SiteName
