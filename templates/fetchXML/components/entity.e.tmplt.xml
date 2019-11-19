@@ -1,7 +1,7 @@
 <entity <<
 	
 	Render-Template "$TemplateDir\attributes.a.tmplt.xml" @{
-		AcceptedAttributes = @( "name", "alias" )
+		AcceptedAttributes = @( "name" )
 		Defaults = @{}
 		Entity = $Values
 	}
