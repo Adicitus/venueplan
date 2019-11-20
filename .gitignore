@@ -1,0 +1,3 @@
+# The runas file is used to store credentials that should be used to
+# connect to CRM. Should not be version controlled.
+runas
