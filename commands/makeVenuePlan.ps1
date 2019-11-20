@@ -1,4 +1,6 @@
 
+. "$PSScriptRoot\..\GetContent.ps1"
+
 function makeVenuePlan {
 	[CmdletBinding(DefaultParameterSetName="CalendarWeeks")]
 	param(
