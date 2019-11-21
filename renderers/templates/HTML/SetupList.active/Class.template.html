@@ -113,6 +113,7 @@ $Values.renderAnnotations = {
 				
 				Conditions=@(
 					@{a="cint_course_date_id"; o="eq"; v=$class.id}
+					@{a="cint_contact_id"; o="not-null"}
 					@{a="cint_reservationstatus"; o="eq"; v=20}
 				)
 				
