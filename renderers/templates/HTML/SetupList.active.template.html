@@ -82,9 +82,6 @@
 				right:0;
 				top:0;
 				display:table;
-				border-color:#999;
-				border-width:1px;
-				border-style:none solid none solid;
 				text-align:center;
 			}
 			
@@ -277,7 +274,35 @@
 		<span> << "{0:yyyy-MM-dd}" -f $StartDate >> till << "{0:yyyy-MM-dd}" -f $EndDate >> </span>
 		
 		<<
-				
+			$siteNames = GetContent @{
+				name="site"
+				attributes = "name"
+			} | % name
+
+			$siteNames += GetContent @{
+					name="cint_venue_category"
+					attributes = "cint_name"
+				} | % Name
+			
+
+			$siteNames | % {
+				shoutOut $_ Magenta
+			}
+			
+			$selectedSites = @()
+			$siteNames | ? {
+				$_ -notin $selectedSites
+			} | ? {
+				$cn = $_
+				$SiteFilter | ? {
+					$cn -like $_
+				}
+			} | % {
+				$selectedSites += $_
+			}
+			
+			
+
 			$classes = GetContent @{
 				name="cint_course_date"
 
@@ -348,6 +373,8 @@
 							to="cint_venue_category_id"
 							
 							Attributes=@{ name="cint_name"; alias="sitename" }
+
+							Conditions=@{ a="cint_name"; o="in"; v=@($selectedSites) }
 						}
 					}
 				}
