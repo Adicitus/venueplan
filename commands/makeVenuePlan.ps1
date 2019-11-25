@@ -8,6 +8,7 @@ function makeVenuePlan {
 		[Parameter(ParameterSetName="Period", Position=2)][datetime] $EndDate,
 		[Parameter(ParameterSetName="CalendarWeeks", Position=1)][Int] $Weeks = 1,
 		[Parameter(ParameterSetName="CalendarWeeks", Position=2)][Int] $StartFrom = 0,
+		[Parameter(Position=3)]$Sites = "*",
 		[String]$Name		= "VenuePlan",
 		[ValidateSet("SetupListHTML", "VenueOverviewHTML")][String]$RenderAs = "SetupListHTML",
 		[string]$Path		= "$env:USERPROFILE\AppData\local\Temp\$Name.html",
@@ -59,7 +60,7 @@ function makeVenuePlan {
 
 	}
 	
-	& $renderer $StartDate $EndDate > $path
+	& $renderer $StartDate $EndDate $Sites > $path
 
 	$renderFinishTime = [datetime]::now
 
