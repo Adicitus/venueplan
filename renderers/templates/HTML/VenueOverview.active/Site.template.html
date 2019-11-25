@@ -1,0 +1,27 @@
+<< "Starting render of site: {0}" -f $SiteName | shoutout >>
+
+<div class="site">
+	<h2><<$SiteName>></h2>
+
+	<div class="venues">
+	<<	
+		$VenuesInSite = $Bookings.Keys | % { $Bookings[$_] | ? sitename -eq $SiteName | % venuename } | Sort -Unique
+		
+		$VenuesInSite | % {
+			
+			$venueName = $_
+			
+			Render-Template "$TemplateDir\Venue.template.html" @{
+				VenueName = $venueName
+				Classes = $Classes
+				Bookings = $Bookings
+				SiteName = $SiteName
+			}
+			
+		}
+		
+	>>
+	</div>
+</div>
+
+<< "Finished render of site: {0}" -f $SiteName | shoutout >>

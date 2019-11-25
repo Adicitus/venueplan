@@ -9,7 +9,7 @@ function makeVenuePlan {
 		[Parameter(ParameterSetName="CalendarWeeks", Position=1)][Int] $Weeks = 1,
 		[Parameter(ParameterSetName="CalendarWeeks", Position=2)][Int] $StartFrom = 0,
 		[String]$Name		= "VenuePlan",
-		[ValidateSet("SetupListHTML")][String]$RenderAs = "SetupListHTML",
+		[ValidateSet("SetupListHTML", "VenueOverviewHTML")][String]$RenderAs = "SetupListHTML",
 		[string]$Path		= "$env:USERPROFILE\AppData\local\Temp\$Name.html",
 		[pscredential]$Credential = $null
 	)
@@ -51,6 +51,10 @@ function makeVenuePlan {
 		
 		"SetupListHTML" {
 			& "$PSScriptRoot\..\renderers\_renderSetupListHTML.ps1"
+		}
+		
+		"VenueOverviewHTML" {
+			& "$PSScriptRoot\..\renderers\_renderVenueOverviewHTML.ps1"
 		}
 
 	}
