@@ -1,0 +1,9 @@
+
+<< "Starting render of Venue: {0}" -f $Venue.venuename | shoutout >>
+
+<div class="venue <<if ($Venue.is_master) { 'is_master' }>>">
+	<span class="name"><<$Venue.venuename>></span>
+	<span class="studentcount"><<$Students | Measure | % Count>></span>
+</div>
+
+<< "Finished render of Venue: {0}" -f $Venue.venuename | shoutout >>

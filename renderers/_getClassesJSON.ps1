@@ -72,7 +72,7 @@ function _getClassesJSON {
         $hash = @{}
         $c = $_
 
-        $_.Attributes.Keys | ForEach-Object {
+        $c.Attributes.Keys | ? { $_ } | ForEach-Object {
             $hash[$_] = $c.$_
         }
 

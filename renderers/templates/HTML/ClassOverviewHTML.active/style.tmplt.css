@@ -1,0 +1,239 @@
+body {
+    line-height: 1.3em;
+}
+
+body * {
+    position: relative;
+    font-size: 10pt;
+}
+
+h1 {
+    font-variant:small-caps;
+    font-size:2em;
+}
+
+h2 {
+    font-size:1.5em;
+    margin:0;
+    letter-spacing:0.2ex;
+    font-variant: small-caps;
+    vertical-align:middle;
+    line-height:2em;
+    padding:0 1em;
+    background-color:#EEE
+}
+
+.hidden {
+    display:none;
+}
+
+.site {
+    margin-bottom: 5em;
+    border:2pt solid #999;
+    border-radius:10pt;
+    max-width:210mm;
+    margin: 10pt auto;
+    overflow:hidden;
+}
+
+.venue {
+    margin-bottom: 0.7em;
+}
+
+.venue .venuelabel {
+    background-color:black;
+    color:white;
+    padding-left:0.3em;
+    font-size:12pt;
+    font-family:monospace;
+    line-height:1.8em;
+    border-top:0.5mm solid #999;
+    letter-spacing: 0.1em;
+}
+
+.class {
+    border: 0.2mm solid #999;
+    border-style: solid none none none;
+}
+
+.class_status {
+    font-family:monospace;
+    background-color:#DDD;
+    border-bottom:1px solid #999;
+    color:black;
+    font-size:10pt;
+    height:1.3em;
+    line-height:1.3em;
+}
+
+.class_status .weekdays {
+    position: absolute;
+    width:23mm;
+    right:0;
+    top:0;
+    display:table;
+    text-align:center;
+}
+
+.class_status .weekdays .day {
+    display:table-cell;
+    background-color:rgba(174, 237, 237, 1);
+    border-color:#999;
+    border-width:1px;
+    border-style:none solid none solid;
+}
+
+
+.class_status .weekdays .day.empty {
+    background-color: #555;
+}
+
+.class_status .period {
+    text-align: center;
+}
+
+.class_status .checklist {
+    position: absolute;
+    left:2mm;
+    top:0;
+    width:20%;
+    letter-spacing:-0.2ex;
+}
+
+.checklist .checkbox {
+    display:inline-block;
+    width:0.9em;
+    height:0.9em;
+    border:0.2mm solid #666;
+    border-radius:6mm;
+    background-color:white;
+    vertical-align:middle;
+}
+
+.class_nameid {
+    position:relative;
+    height:1.3em;
+    line-height:1.3em;
+    border-bottom:1px solid #999;
+    overflow:hidden;
+}
+
+.class .classname {
+    position:absolute;
+    top:0;
+    left:0;
+    width: 80%;
+    overflow:hidden;
+    padding-left:1ex;
+    font-family: monospace;
+    font-size:10pt;
+    white-space:nowrap;
+    text-overflow:ellipsis;
+}
+
+.class .classid {
+    position:absolute;
+    top:0;
+    right:0;
+    width: 18%;
+    border-left:1px solid #999;
+    padding-left:1ex;
+    font-family:monospace;
+    font-size:10pt;
+}
+
+
+.class_details {
+    margin:0;
+    width:100%;
+    margin: 0 0 0 5mm;
+    border-left:1px solid #999
+}
+
+.class_details .property {
+    width:50%;
+    vertical-align:top;
+}
+
+.class_details .property .label {
+    font-family:monospace;
+    display:table-cell;
+    padding-right:0.5ex;
+    width:20ex;
+    text-align:right;
+    background-color:#FAFAFA;
+    border: 1px solid #CCC;
+    border-style: none solid none none;
+    vertical-align:top;
+    color:#111;
+}
+
+.class_details .property .value {
+    display:table-cell;
+    padding-left:0.5ex;
+}
+
+.class_details .property.failed .value {
+    font-weight:bold;
+    color:red;
+}
+
+.class_details .property.passed .value {
+    color:green;
+}
+
+.venues {
+    margin: 0 0 0 5mm;
+    background-color:#FAFAFA;
+    border: 1px solid #CCC;
+    border-left: 1px solid #999;
+}
+
+.venue {
+    margin:1mm 2mm 1mm 12mm;
+    background-color:#EEE;
+    border: 0.2mm solid #DDD;
+    padding:0.5mm 0.2mm;
+    font-family:monospace;
+    font-size:10pt;
+}
+
+.venue .name {
+    margin-left:5mm;
+}
+
+.venue.is_master .name::before {
+    content: "[MASTER]";
+    font-size: 8pt;
+    position: absolute;
+    left:-16mm;
+    top:0;
+    background-color:#EEE;
+    border:0.2mm solid #AAA;
+    line-height:1em;
+    padding:0.5mm;
+}
+
+@media only print {
+    
+    a, a:link, a:visited {
+        color:black;
+        text-decoration:none;
+    }
+
+    @page {
+        margin:10mm auto;
+    }
+
+    h2 {
+        page-break-after: avoid;
+    }
+    
+    .site {
+        box-decoration-break: clone;
+    }
+    
+    .venue {
+        page-break-inside: avoid;
+    }
+}

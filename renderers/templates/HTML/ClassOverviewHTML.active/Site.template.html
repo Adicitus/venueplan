@@ -1,0 +1,20 @@
+<< "Starting render of site: {0}" -f $SiteName | shoutout >>
+
+<div class="site">
+	<h2><<$SiteName>></h2>
+
+	<div class="classes">
+	<<
+		$Classes | ? Sitename -eq $SiteName | Sort startdate | % {
+			$class = $_
+			
+			Render-Template "$TemplateDir\Class.template.html" @{
+				Class = $Class
+				Venues = $Bookings[$Class.Id]
+			}
+		}
+	>>
+	</div>
+</div>
+
+<< "Finished render of site: {0}" -f $SiteName | shoutout >>
