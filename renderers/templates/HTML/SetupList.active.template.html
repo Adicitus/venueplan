@@ -1,4 +1,5 @@
-<< shoutOut "Starting render of root." >>
+
+<< $Values.RenderStart = [datetime]::now >>
 
 <!DOCTYPE html>
 <html>
@@ -20,6 +21,7 @@
 			h1 {
 				font-variant:small-caps;
 				font-size:2em;
+				margin:0;
 			}
 			
 			h2 {
@@ -40,25 +42,24 @@
 			.site {
 				margin-bottom: 5em;
 				border:2pt solid #999;
-				border-radius:10pt;
 				max-width:210mm;
 				margin: 10pt auto;
 				overflow:hidden;
 			}
 			
 			.venue {
-				margin-bottom: 0.7em;
+				margin: 0;
 			}
 		
 			.venue .venuelabel {
 				background-color:black;
 				color:white;
 				padding-left:0.3em;
-				font-size:12pt;
+				font-size:11pt;
 				font-family:monospace;
-				line-height:1.8em;
+				line-height:1.3em;
 				border-top:0.5mm solid #999;
-				letter-spacing: 0.1em;
+				letter-spacing: 0.12em;
 			}
 			
 			.class {
@@ -78,7 +79,7 @@
 			
 			.class_status .weekdays {
 				position: absolute;
-				width:23mm;
+				width:20%;
 				right:0;
 				top:0;
 				display:table;
@@ -98,15 +99,19 @@
 				background-color: #555;
 			}
 			
-			.class_status .period {
-				text-align: center;
+			.class .classtitle {
+				text-align: left;
+				margin-left:15%;
+				width:65%;
+				overflow:hidden;
+				text-overflow:ellipsis;
+				white-space:nowrap;
 			}
 			
-			.class_status .checklist {
+			.class .checklist {
 				position: absolute;
 				left:2mm;
 				top:0;
-				width:20%;
 				letter-spacing:-0.2ex;
 			}
 			
@@ -128,7 +133,7 @@
 				overflow:hidden;
 			}
 			
-			.class .classname {
+			.class .setup {
 				position:absolute;
 				top:0;
 				left:0;
@@ -141,24 +146,11 @@
 				text-overflow:ellipsis;
 			}
 			
-			.class .classid {
-				position:absolute;
-				top:0;
-				right:0;
-				width: 18%;
-				border-left:1px solid #999;
-				padding-left:1ex;
-				font-family:monospace;
-				font-size:10pt;
-			}
-			
-			
 			.class_details {
 				margin:0;
 				width:100%;
 				display:table;
-				margin: 0 0 0 5mm;
-				border-left:1px solid #999
+				background-color:#EEE;
 			}
 			
 			.class_details .property {
@@ -173,7 +165,6 @@
 				padding-right:0.5ex;
 				width:20ex;
 				text-align:right;
-				background-color:#FAFAFA;
 				border: 1px solid #CCC;
 				border-style: none solid none none;
 				vertical-align:top;
@@ -199,8 +190,8 @@
 				border:1px solid #999;
 				border-width:1px;
 				border-style:solid;
-				border-color:#DDD #DDD #999 #999;
-				margin: 0 0 0 5mm;
+				border-color: #999;
+				border-style:solid none solid none;
 			}
 			
 			.class_meta {
@@ -284,10 +275,6 @@
 					attributes = "cint_name"
 				} | % Name
 			
-
-			$siteNames | % {
-				shoutOut $_ Magenta
-			}
 			
 			$selectedSites = @()
 			$siteNames | ? {
@@ -348,6 +335,8 @@
 			
 			$bookings = @{}
 			$bookingsBySite = @{}
+			$students = @{}
+			$annotations = @{}
 			
 			foreach ($class in $classes) {
 			
@@ -387,6 +376,59 @@
 					}
 				}
 				
+				$students[$class.id] = GetContent @{
+					name="cint_course_reservation"
+					
+					Attributes = @(
+						@{ name="cs_remote_participant"; alias="is_athome" }
+					)
+					
+					Conditions=@(
+						@{a="cint_course_date_id"; o="eq"; v=$class.id}
+						@{a="cint_contact_id"; o="not-null"}
+						@{a="cint_reservationstatus"; o="eq"; v=20}
+					)
+					
+					LinkEntities = @{
+						"link-type"="outer"
+						name="cint_venue_booking"
+						to="cs_course_reservation_id"
+
+						LinkEntities=@{
+							"link-type"="outer"
+							name="cint_venue"
+							to="cint_venue_id"
+
+							Attributes=@{name="cint_visitingcity"; alias="sitename"}
+						}
+					}
+					
+				}
+				
+				$annotations[$class.id] = @{
+					Course = GetContent @{
+						name="annotation"
+						
+						Attributes="notetext","subject"
+						
+						Conditions=@(
+							@{ a="objectid"; o="eq"; v=$class.courseid }
+							@{ a="subject"; o="eq"; v="deploy.note" }
+						)
+					}
+					
+					Class = GetContent @{
+						name="annotation"
+
+						Attributes="notetext","subject"
+
+						Conditions=@(
+							@{ a="objectid"; o="eq"; v=$class.id }
+							@{ a="subject"; o="eq"; v="deploy.note" }
+						)
+					}
+				}
+				
 			}
 			
 			$ordering = @{
@@ -420,12 +462,15 @@
 					Classes 	= $currentClasses
 					Bookings 	= $bookings
 					BookingsBySite 	= $bookingsBySite
+					Students 	= $students
+					Annotations = $annotations
 				}
 			}
 		>>
 		
 		<div id="footer">
-			Renderad << "{0:yyyy-MM-dd, kl HH:mm}" -f [datetime]::now >> av <<whoami>> på <<$env:COMPUTERNAME>>.
+			<< $Values.RenderEndish = [datetime]::now >>
+			Renderad << "{0:yyyy-MM-dd, kl HH:mm}" -f [datetime]::now >> av <<whoami>> på <<$env:COMPUTERNAME>> (tog << '{0:n2}' -f ($Values.RenderEndish - $Values.RenderStart).TotalSeconds >> sekunder). 
 		</div>
 		
 	</body>

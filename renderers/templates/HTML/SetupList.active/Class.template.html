@@ -1,6 +1,4 @@
 
-<< "Starting render of class: {0}" -f $Class.classnumber | shoutout >>
-
 <<
 
 $cd = $Class
@@ -42,28 +40,17 @@ $renderPreFormatted = {
 
 $Values.renderPreFormatted = $renderPreFormatted
 
-$Values.renderAnnotations = {
-	param($objectid, $subject, $tag)
-	$annotations = GetContent @{
-		name="annotation"
-		
-		Attributes="notetext","subject"
-		
-		Conditions=@(
-			@{ a="objectid"; o="eq"; v=$objectid }
-			@{ a="subject"; o="eq"; v=$subject }
-		)
-	}
-
-	$annotations | % {
-		& $Values.renderPreFormatted $tag $_.notetext
-	}
-}
-
 >>
 
 <div class="class">
 	<div class="class_status">
+		<div class="checklist">
+			<div class="checkbox"></div>
+			<div class="checkbox"></div>
+			<div class="checkbox"></div>
+			<div class="checkbox"></div>
+			<div class="checkbox"></div>
+		</div>
 		<div class="weekdays">
 			<<
 				$Values.Week | % {
@@ -72,30 +59,24 @@ $Values.renderAnnotations = {
 				}
 			>>
 		</div>
-		<div class="period"><< "{0:yyyy-MM-dd HH:mm} -> {1:yyyy-MM-dd HH:mm}" -f $Class.startdate.ToLocalTime(), $Class.enddate.ToLocalTime() >></div>
-		<div class="checklist">
-			<div class="checkbox"></div>
-			<div class="checkbox"></div>
-			<div class="checkbox"></div>
-			<div class="checkbox"></div>
-			<div class="checkbox"></div>
-		</div>
-	</div>
-	<div class="class_nameid">
-		<div class="classname">
-			<<
-				$Class.classtitle
-			>>
-		</div>
-		<div class="classid">
+		<div class="classtitle">
 			<a
 				href="<<
 					'http://crm.addskills.se/Cornerstone/main.aspx?etc=10020&extraqs=%3Fetc%3D10020%26id%3D%257b{0}%257d&pagetype=entityrecord' -f $class.Id
 				>>"
 				target="<<$class.id>>"
 			>
-			<<$Class.classnumber>>
+				<< $Class.classtitle >>
 			</a>
+		</div>
+	</div>
+	<div class="class_nameid">
+		<div class="setup">
+			<<
+				("Course", "Class" | % {
+					$Annotations.$_ | % { $_.notetext + "" } | ? { $_ -match "Prepp:" }
+				}) -join " "
+			>>
 		</div>
 	</div>
 	<div class="class_details">
@@ -104,41 +85,13 @@ $Values.renderAnnotations = {
 		
 			$renderProperty = $Values.renderProperty
 			
-			$definitiveStudents = GetContent @{
-				name="cint_course_reservation"
-				
-				Attributes = @(
-					@{ name="cs_remote_participant"; alias="is_athome" }
-				)
-				
-				Conditions=@(
-					@{a="cint_course_date_id"; o="eq"; v=$class.id}
-					@{a="cint_contact_id"; o="not-null"}
-					@{a="cint_reservationstatus"; o="eq"; v=20}
-				)
-				
-				LinkEntities = @{
-					"link-type"="outer"
-					name="cint_venue_booking"
-					to="cs_course_reservation_id"
 
-					LinkEntities=@{
-						"link-type"="outer"
-						name="cint_venue"
-						to="cint_venue_id"
-
-						Attributes=@{name="cint_visitingcity"; alias="sitename"}
-					}
-				}
-				
-			}
-
-			$studentCount = $definitiveStudents | measure | % Count
-			$masterStudents = $definitiveStudents | ? { !($_.is_athome -or $_.sitename) }
-			$studentCountAtHome = $definitiveStudents | ? { $_.is_athome } | Measure | % Count
+			$studentCount = $Students | measure | % Count
+			$masterStudents = $Students | ? { !($_.is_athome -or $_.sitename) }
+			$studentCountAtHome = $Students | ? { $_.is_athome } | Measure | % Count
 			$remoteStudents = @{}
 			
-			$definitiveStudents | % {
+			$Students| % {
 				$s = $_
 				
 				if ($s.sitename) {
@@ -185,16 +138,18 @@ $Values.renderAnnotations = {
 	<div class="class_notes ">
 		<div class="course_notes ">
 <<
-	& $Values.renderAnnotations $Class.courseid "deploy.note" "note"
+	$Annotations.Course | ? notetext -notmatch "Prepp:" | % {
+		& $Values.renderPreFormatted "note" $_.notetext
+	}
 >>
 		</div>
 		
 		<div class="course_date_notes">
 <<
-	& $Values.renderAnnotations $Class.id "deploy.note" "note"
+	$Annotations.Class | ? notetext -notmatch "Prepp:" | % {
+		& $Values.renderPreFormatted "note" $_.notetext
+	}
 >>
 		</div>
 	</div>
 </div>
-
-<< "Finished render of class: {0}" -f $Class.classnumber | shoutout >>
