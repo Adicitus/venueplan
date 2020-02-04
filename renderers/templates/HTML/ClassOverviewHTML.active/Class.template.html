@@ -203,6 +203,44 @@ $Values.physicalVenues = $Venues | ? Sitename -ne "LiveClass"
 			}
 		>>
 	</div>
+
+	<div class="class_notes ">
+		<div class="course_notes ">
+<<
+	$fetchHash = @{
+		name="annotation"
+
+		Attributes = "notetext"
+
+		Conditions=@(
+			@{a="objectid"; o="eq"; v=$class.courseid}
+			@{a="subject"; o="eq"; v="deploy.note"}
+		)
+	}
+	GetContent $fetchHash | % {
+		& $Values.renderPreFormatted "note" $_.notetext
+	}
+>>
+		</div>
+		
+		<div class="course_date_notes">
+<<
+	$fetchHash = @{
+		name="annotation"
+
+		Attributes = "notetext"
+
+		Conditions=@(
+			@{a="objectid"; o="eq"; v=$class.id}
+			@{a="subject"; o="eq"; v="deploy.note"}
+		)
+	}
+	GetContent $fetchHash | % {
+		& $Values.renderPreFormatted "note" $_.notetext
+	}
+>>
+		</div>
+	</div>
 </div>
 
 << "Finished render of class: {0}" -f $Class.classnumber | shoutout >>

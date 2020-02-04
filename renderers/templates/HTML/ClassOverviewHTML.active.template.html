@@ -1,5 +1,6 @@
 << shoutOut "Starting render of root." >>
 
+<< $Values.RenderStart = [datetime]::now >>
 <!DOCTYPE html>
 <html>
 	<head>
@@ -51,8 +52,7 @@
 		<<($TemplateDir\ClassOverviewHTML.active\body.ps1)>>
 		
 		<div id="footer">
-			Renderad << "{0:yyyy-MM-dd, kl HH:mm}" -f [datetime]::now >> av <<whoami>> på <<$env:COMPUTERNAME>>.
+			Renderad << "{0:yyyy-MM-dd, kl HH:mm}" -f [datetime]::now >> av <<whoami>> på <<$env:COMPUTERNAME>> (tog << $d = ([datetime]::now - $Values.RenderStart); "{0:N2}" -f $d.TotalSeconds>> sekunder).
 		</div>
-		
 	</body>
 </html>
