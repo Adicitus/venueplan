@@ -1,8 +1,28 @@
 
-<< "Starting render of Venue: {0}" -f $VenueName | shoutout >>
 
 <div class="venue">
-	<div class="venuelabel"> <<$VenueName>> </div>
+	<div class="venuelabel">
+		<<$VenueName>>
+	
+		
+		<div class="weekdays">
+			<<
+				$renderPreFormatted = {
+					param( $c, $v )
+					
+					Render-Template "$TemplateDir\PreFormatted.template.html" @{
+						Classes = $c
+						Value	= $v
+					}
+				}
+			
+				$week = @("M", "T", "O", "T", "F")
+				$week | % {
+					& $renderPreFormatted "day" $_
+				}
+			>>
+		</div>
+	</div>
 	
 	<div class="classes">
 	<<
@@ -23,5 +43,3 @@
 	</div>
 	
 </div>
-
-<< "Finished render of Venue: {0}" -f $VenueName | shoutout >>

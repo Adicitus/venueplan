@@ -1,6 +1,4 @@
 
-<< "Starting render of class: {0}" -f $Class.classnumber | shoutout >>
-
 <<
 
 $cd = $Class
@@ -18,7 +16,6 @@ for ($i = 1; $i -le 5; $i++) {
 
 $values.Week = $week
 
-shoutOut "Getting students..."
 $definitiveStudents = GetContent @{
 	name="cint_course_reservation"
 
@@ -47,7 +44,6 @@ $definitiveStudents = GetContent @{
 	}
 
 }
-shoutOUt "Finished getting students."
 
 $studentCount = $definitiveStudents | measure | % Count
 $masterStudents = $definitiveStudents | ? { !($_.is_athome -or $_.sitename) }
@@ -75,7 +71,6 @@ $Values.localStudentCount = if ($Values.isSatellite) {
 	$masterStudents | measure | % Count
 }
 
-shoutOUt "Finished checking students."
 
 $renderPreFormatted = {
 	param( $c, $v )
@@ -94,7 +89,6 @@ $Values.renderPreFormatted = $renderPreFormatted
 	<div class="class_status">
 		<div class="weekdays">
 			<<
-				shoutOut "Rendering days..."
 				$Values.Week | % {
 					$tag = if ($_ -eq "_") { "empty" }
 					
@@ -106,7 +100,6 @@ $Values.renderPreFormatted = $renderPreFormatted
 					
 					& $Values.renderPreFormatted "day $tag" $v
 				}
-				shoutOut "Finished rendering days."
 			>>
 		</div>
 		<div class="classname">
@@ -127,5 +120,3 @@ $Values.renderPreFormatted = $renderPreFormatted
 		
 	</div>
 </div>
-
-<< "Finished render of class: {0}" -f $Class.classnumber | shoutout >>
