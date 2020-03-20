@@ -5,14 +5,26 @@
 	<div class="venues">
 	<<	
 		$VenuesInSite = $Bookings.Keys | % { $Bookings[$_] | ? sitename -eq $SiteName | % venuename } | Sort -Unique
-		
+
 		$VenuesInSite | % {
 			
 			$venueName = $_
+
+			$classesToRender = $Classes | ? {
+				($Bookings[$_.Id] | ? venuename -eq $VenueName )
+			} | ? {
+				$meta = $Annotations[$_.Id].Meta
+				if ($meta | ? { ($r = $_.Reports ) -and ($true -eq $r.Hidden) }) {
+					return $false
+				}
+				return $true
+			}
 			
+			if (-not $classesToRender) { return }
+
 			Render-Template "$TemplateDir\Venue.template.html" @{
 				VenueName = $venueName
-				Classes = $Classes
+				Classes = $classesToRender
 				Bookings = $Bookings
 				SiteName = $SiteName
 				Students = $Students

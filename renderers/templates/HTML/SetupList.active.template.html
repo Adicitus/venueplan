@@ -134,15 +134,13 @@
 			}
 			
 			.class .setup {
-				position:absolute;
 				top:0;
 				left:0;
-				width: 80%;
+				min-height:1.3em;
 				overflow:hidden;
 				padding-left:1ex;
 				font-family: monospace;
 				font-size:10pt;
-				white-space:nowrap;
 				text-overflow:ellipsis;
 			}
 			
@@ -426,6 +424,21 @@
 							@{ a="objectid"; o="eq"; v=$class.id }
 							@{ a="subject"; o="eq"; v="deploy.note" }
 						)
+					}
+
+					Meta = GetContent @{
+						name="annotation"
+
+						Attributes="notetext"
+
+						Conditions=@(
+							@{ a="objectid"; o="eq"; v=$class.id }
+							@{ a="subject"; o="eq"; v="deploy.meta" }
+						)
+					} | % {
+						try {
+							$_.notetext | ConvertFrom-Json
+						} catch {}
 					}
 				}
 				

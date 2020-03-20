@@ -8,6 +8,7 @@
 			$class = $_
 			
 			if ( ($bookings[$class.Id] | ? venuename -eq $VenueName )) {
+
 				Render-Template "$TemplateDir\Class.template.html" @{
 					SiteName = $SiteName
 					VenueName = $VenueName

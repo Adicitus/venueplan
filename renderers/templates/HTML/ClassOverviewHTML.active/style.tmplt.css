@@ -23,6 +23,10 @@ h2 {
     background-color:#EEE
 }
 
+pre {
+    white-space: pre-line;
+}
+
 .hidden {
     display:none;
 }

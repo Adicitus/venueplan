@@ -1,5 +1,3 @@
-#requires -Modules ACGCore
-
 {
 	param($StartDate, $EndDate, $SiteFilter="*")
 	

@@ -9,10 +9,36 @@
 		$VenuesInSite | % {
 			
 			$venueName = $_
+
+			$classesToRender = $Classes | ? {
+				($Bookings[$_.Id] | ? venuename -eq $VenueName )
+			} | ? {
+				$class = $_
+				$meta = GetContent @{
+					name="annotation"
+
+					Attributes="notetext"
+
+					Conditions=@(
+						@{ a="objectid"; o="eq"; v=$class.id }
+						@{ a="subject"; o="eq"; v="deploy.meta" }
+					)
+				} | % {
+					try {
+						$_.notetext | ConvertFrom-Json
+					} catch {}
+				}
+				if ($meta | ? { ($r = $_.Reports ) -and ($true -eq $r.Hidden) }) {
+					return $false
+				}
+				return $true
+			}
+			
+			if (-not $classesToRender) { return }
 			
 			Render-Template "$TemplateDir\Venue.template.html" @{
 				VenueName = $venueName
-				Classes = $Classes
+				Classes = $classesToRender
 				Bookings = $Bookings
 				SiteName = $SiteName
 			}

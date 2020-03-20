@@ -1,5 +1,3 @@
-
-#requires -Modules AMSoftware.CRM, ACGCore
 . "$PSScriptRoot\FetchHashToFetchXML.ps1"
 
 function GetContent {
