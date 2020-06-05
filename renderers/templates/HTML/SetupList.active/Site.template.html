@@ -1,9 +1,12 @@
 
 <div class="site">
+	<< $Values.siteRenderStartTime = [datetime]::now >>
 	<h2><<$SiteName>></h2>
 
 	<div class="venues">
 	<<	
+		$siteRenderStartTime = [datetime]::now
+
 		$VenuesInSite = $Bookings.Keys | % { $Bookings[$_] | ? sitename -eq $SiteName | % venuename } | Sort -Unique
 
 		$VenuesInSite | % {
@@ -35,4 +38,10 @@
 		
 	>>
 	</div>
+
+	<<
+		$siteRenderEndTime = [datetime]::now
+
+		"<!-- Site Render took {0:N2} seconds -->" -f ($siteRenderEndTime - $Values.siteRenderStartTime).TotalSeconds
+	>>
 </div>

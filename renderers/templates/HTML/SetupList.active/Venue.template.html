@@ -1,5 +1,8 @@
 
 <div class="venue">
+	<<
+		$Values.venueRenderStartTime = [datetime]::now
+	>>
 	<div class="venuelabel"> <<$VenueName>> </div>
 	
 	<div class="classes">
@@ -22,5 +25,10 @@
 		}
 	>>
 	</div>
-	
+	<<
+
+		$venueRenderEndTime = [datetime]::now
+		"<!-- Venue render finished in {0:N2} seconds. -->" -f ($venueRenderEndTime - $Values.venueRenderStartTime).TotalSeconds
+
+	>>
 </div>

@@ -1,0 +1,12 @@
+<div class="<<$HtmlClass>>">
+    <<
+        $notes | % {
+            $v = $_.notetext
+            # & $Values.renderPreFormatted "note" $_.notetext
+            Render-Template "$TemplateDir\PreFormatted.template.html" @{
+                Classes = "note"
+                Value	= $v
+            }
+        }
+    >>
+</div>

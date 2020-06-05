@@ -1,6 +1,8 @@
 
 <<
 
+$Values.classRenderStartTime = [datetime]::now
+
 $cd = $Class
 $week = @("M", "T", "O", "T", "F")
 $sd = $cd.startdate
@@ -136,20 +138,29 @@ $Values.renderPreFormatted = $renderPreFormatted
 	</div>
 	
 	<div class="class_notes ">
-		<div class="course_notes ">
-<<
-	$Annotations.Course | ? notetext -notmatch "Prepp:" | % {
-		& $Values.renderPreFormatted "note" $_.notetext
-	}
->>
-		</div>
-		
-		<div class="course_date_notes">
-<<
-	$Annotations.Class | ? notetext -notmatch "Prepp:" | % {
-		& $Values.renderPreFormatted "note" $_.notetext
-	}
->>
-		</div>
+		<<
+			$notes = $Annotations.Course | ? notetext -notmatch "Prepp:"
+			if ($notes) {
+				Render-Template "$TemplateDir\notesDiv.tmplt.html" @{
+					HtmlClass = "course_notes"
+					Notes = $notes
+				}
+			}
+		>>
+
+		<<
+			$notes = $Annotations.Class | ? notetext -notmatch "Prepp:"
+			if ($notes) {
+				Render-Template "$TemplateDir\notesDiv.tmplt.html" @{
+					HtmlClass = "course_date_notes"
+					Notes = $notes
+				}
+			}
+		>>
 	</div>
+	<<
+		$classRenderEndTime = [datetime]::now
+
+		"<!-- Class Render took {0:N2} seconds -->" -f ($classRenderEndTime - $Values.classRenderStartTime).TotalSeconds
+	>>
 </div>
