@@ -262,7 +262,7 @@
 		
 		<span> << "{0:yyyy-MM-dd}" -f $StartDate >> till << "{0:yyyy-MM-dd}" -f $EndDate >> </span>
 		
-		<< . $templateDir\SetupList.active\body.ps1 >>
+		<<($templateDir\SetupList.active\body.ps1)>>
 		
 		<div id="footer">
 			<< $Values.RenderEndish = [datetime]::now >>

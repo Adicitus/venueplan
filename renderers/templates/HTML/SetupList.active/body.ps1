@@ -72,7 +72,7 @@ $classIds = $classes | % id | % guid
 $courseIds = $classes | % courseid
 $classesByCourseID = @{}
 $classes | % {
-    if ($classesByCourseID.ContainsKey($_.courseid)) {
+    if (-not $classesByCourseID.ContainsKey($_.courseid)) {
         $classesByCourseID[$_.courseid] = @()
     }
 
@@ -194,6 +194,7 @@ GetContent @{
             $Annotations[$cid].Course += $annotation
         }
     }
+    
 }
 
 GetContent @{
@@ -277,7 +278,7 @@ foreach($sitename in $sitenames) {
         continue
     }
 
-    Render-Template "$PSScriptRoot\Site.template.html" @{
+    Render-Template "$TemplateDir\SetupList.active\Site.template.html" @{
         SiteName	= $siteName
         Classes 	= $currentClasses
         Bookings 	= $bookings
