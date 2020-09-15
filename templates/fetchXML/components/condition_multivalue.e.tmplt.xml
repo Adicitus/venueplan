@@ -1,9 +1,0 @@
-<condition attribute="<<$A>>" operator="<<$O>>" >
-	<<
-		$V | ? { $_ } | % {
-			Render-Template "$TemplateDir\value.e.tmplt.xml" @{
-				Value= $_
-			}
-		}
-	>>
-</condition>

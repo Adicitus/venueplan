@@ -1,7 +1,0 @@
-<fetch mapping="logical">
-	<entity name="contact">
-		<filter type="and">
-			<condition attribute="contactid" operator="eq" value="<<$course_reservation.cint_contact_id.Id>>" />
-		</filter>
-	</entity>
-</fetch>
