@@ -12,7 +12,8 @@ function makeVenuePlan {
 		[String]$Name		= "VenuePlan",
 		[ValidateSet("SetupListHTML", "VenueOverviewHTML")][String]$RenderAs = "SetupListHTML",
 		[string]$Path		= "$env:USERPROFILE\AppData\local\Temp\$Name.html",
-		[pscredential]$Credential = $null
+		[pscredential]$Credential = $null,
+		[Switch]$NoPreview
 	)
 
 	$startTime = [datetime]::now
@@ -64,7 +65,9 @@ function makeVenuePlan {
 
 	$renderFinishTime = [datetime]::now
 
-	& $path
+	if (!$NoPreview) {
+		& $path
+	}
 
 
 	$endTime = [datetime]::now
@@ -73,5 +76,7 @@ function makeVenuePlan {
 		($endTime - $startTime).TotalSeconds
 		($renderFinishTime - $renderStartTime).TotalSeconds
 	) | Write-Host
+
+	return $Path
 
 }
