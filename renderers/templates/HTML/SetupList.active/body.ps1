@@ -175,7 +175,7 @@ GetContent @{
     
     Conditions=@(
         @{ a="objectid"; o="in"; v=$courseIds }
-        @{ a="subject"; o="eq"; v="deploy.note" }
+        @{ a="subject"; o="in"; v="deploy.note", "deploy.setup" }
     )
 } | % {
     $annotation = $_
@@ -191,10 +191,17 @@ GetContent @{
                 }
             }
 
-            $Annotations[$cid].Course += $annotation
+            switch ($annotation.subject) {
+                "deploy.note" {
+                    $Annotations[$cid].Course += $annotation
+                }
+
+                "deploy.setup" {
+                    $Annotations[$cid].Setup = $annotation
+                }
+            }
         }
-    }
-    
+    } 
 }
 
 GetContent @{
@@ -204,7 +211,7 @@ GetContent @{
 
     Conditions=@(
         @{ a="objectid"; o="in"; v=$classIds }
-        @{ a="subject"; o="eq"; v="deploy.note" }
+        @{ a="subject"; o="in"; v="deploy.note", "deploy.meta", "deploy.setup" }
     )
 } | % {
     $cid = $_._classId.Id
@@ -216,32 +223,20 @@ GetContent @{
         }
     }
 
-    $Annotations[$cid].Class += $_
-}
+    switch ($_.subject) {
+        "deploy.note" {
+            $Annotations[$cid].Class += $_
+        }
 
-GetContent @{
-    name="annotation"
+        "deploy.meta" {
+            $m = ConvertFrom-Json $_.notetext
+            $Annotations[$cid].Meta += $m
+        }
 
-    Attributes="notetext", @{ name="objectid"; alias="_classId" }
-
-    Conditions=@(
-        @{ a="objectid"; o="in"; v=$classIds }
-        @{ a="subject"; o="eq"; v="deploy.meta" }
-    )
-} | % {
-    $cid = $_._classId.Id
-    if (-not $Annotations.ContainsKey($cid)) {
-        $Annotations[$cid] = @{
-            Course = @()
-            Class  = @()
-            Meta   = @()
+        "deploy.setup" {
+            $Annotations[$cid].Setup = $_
         }
     }
-
-    try {
-        $m = ConvertFrom-Json $_.notetext
-        $Annotations[$cid].Meta += $m
-    } catch { }
 }
 
 $dataLoadEndTime = [datetime]::Now

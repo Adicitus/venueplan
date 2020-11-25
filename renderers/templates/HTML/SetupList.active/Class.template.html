@@ -75,9 +75,13 @@ $Values.renderPreFormatted = $renderPreFormatted
 	<div class="class_nameid">
 		<div class="setup">
 			<<
-				("Course", "Class" | % {
-					$Annotations.$_ | % { $_.notetext + "" } | ? { $_ -match "Prepp:" }
-				}) -join " "
+				if ($null -ne $Annotations.Setup) {
+					$Annotations.Setup.notetext
+				} else {
+					("Course", "Class" | % {
+						$Annotations.$_ | % { $_.notetext + "" } | ? { $_ -match "Prepp:" }
+					}) -join " "
+				}
 			>>
 		</div>
 	</div>
