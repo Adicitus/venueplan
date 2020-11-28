@@ -26,14 +26,40 @@ function GetContent {
 			
 			$startFetch = [datetime]::now
 			
-			$content = Get-CRMContent -fetchXML $fetchXML
+			$lazyContent = Get-CRMContent -fetchXML $fetchXML
 			
 			$endFetch = [datetime]::now
 			
-			
 			"Fetch query took {0}ms" -f ($endFetch - $startFetch).TotalMilliSeconds | Write-Debug
 			
-			return $content
+			$startLazyLoading = [datetime]::now
+			$fullContent = @()
+			
+			# Going through and getting values for all properties into a hashtable.
+			#
+			# Calling lazy properties (like attributes from Link-Entity) on the
+			# native objects causes data to be loading from the server.
+			#
+			# These calls can be very expensive, and if the property is accessed a
+			# lot it will generated a massive amount of overhead and slowing rendering
+			# Down massively for large data sets.
+			#
+			# So therefore we make all calls here once, and cache the results in a
+			# hashtable.
+			foreach ($c in $lazyContent) {
+				$h = @{}
+				
+				$c | Get-Member -MemberType Property | % {
+					$n = $_.Name
+					$h.$n = $c.$n
+				}
+				
+				$fullContent += $h
+			}
+			
+			"Loading of lazy properties took {0}ms" -f ([datetime]::now - $startLazyLoading).TotalMilliSeconds | Write-Debug
+			
+			return $fullContent
 		}
 		
 		"Id" {
