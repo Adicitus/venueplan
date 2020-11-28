@@ -84,6 +84,7 @@ $bookingsBySite = @{}
 $students = @{}
 $annotations = @{}
 
+# VENUES
 GetContent @{
     name="cint_venue_booking"
     
@@ -131,7 +132,7 @@ $bookings.keys | % { $bookings[$_] } | % {
     $bookingsBySite[$_.sitename] += $_
 }
 
-
+# STUDENTS
 GetContent @{
     name="cint_course_reservation"
     
@@ -214,7 +215,8 @@ GetContent @{
         @{ a="subject"; o="in"; v="deploy.note", "deploy.meta", "deploy.setup" }
     )
 } | % {
-    $cid = $_._classId.Id
+	$annotation = $_
+    $cid = $annotation._classId.Id
     if (-not $Annotations.ContainsKey($cid)) {
         $Annotations[$cid] = @{
             Course = @()
@@ -223,18 +225,18 @@ GetContent @{
         }
     }
 
-    switch ($_.subject) {
+    switch ($annotation.subject) {
         "deploy.note" {
-            $Annotations[$cid].Class += $_
+            $Annotations[$cid].Class += $annotation
         }
 
         "deploy.meta" {
-            $m = ConvertFrom-Json $_.notetext
+            $m = ConvertFrom-Json $annotation.notetext
             $Annotations[$cid].Meta += $m
         }
 
         "deploy.setup" {
-            $Annotations[$cid].Setup = $_
+            $Annotations[$cid].Setup = $annotation
         }
     }
 }
