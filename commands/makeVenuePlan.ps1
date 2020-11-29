@@ -11,9 +11,10 @@ function makeVenuePlan {
 		[Parameter(Position=3)]$Sites = "*",
 		[String]$Name		= "VenuePlan",
 		[ValidateSet("SetupListHTML", "VenueOverviewHTML")][String]$RenderAs = "SetupListHTML",
-		[string]$Path		= "$env:USERPROFILE\AppData\local\Temp\$Name.html",
+		[string]$Path,
 		[pscredential]$Credential = $null,
-		[Switch]$NoPreview
+		[ValidateSet("String", "File")][string]$ResultType = "String",
+		[Switch]$Preview
 	)
 
 	$startTime = [datetime]::now
@@ -61,22 +62,42 @@ function makeVenuePlan {
 
 	}
 	
-	& $renderer $StartDate $EndDate $Sites > $path
-
+	$report = & $renderer $StartDate $EndDate $Sites
+	
 	$renderFinishTime = [datetime]::now
 
-	if (!$NoPreview) {
-		& $path
+	$report > $path
+	
+	$result = $null
+	
+	switch ($ResultType) {
+		"File" {
+			if (!$Path) {
+				$path = "$env:USERPROFILE\AppData\local\Temp\$Name.html"
+			}
+			
+			$report > $path
+			
+			if ($Preview) {
+				& $path
+			}
+			
+			$result = $path
+			
+		}
+		"String" {
+			$result = $report
+		}
 	}
-
-
+	
 	$endTime = [datetime]::now
+	
 
 	"Make took {0} total seconds ({1}s rendering)." -f @(
 		($endTime - $startTime).TotalSeconds
 		($renderFinishTime - $renderStartTime).TotalSeconds
-	) | Write-Host
+	) | Write-Debug
 
-	return $Path
+	return $result
 
 }
