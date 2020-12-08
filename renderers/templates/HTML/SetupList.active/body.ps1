@@ -84,6 +84,10 @@ $bookingsBySite = @{}
 $students = @{}
 $annotations = @{}
 
+if (!$classIds) {
+    return "<div>Inga kurser under den angivna perioden.</div>"
+}
+
 # VENUES
 GetContent @{
     name="cint_venue_booking"
