@@ -39,11 +39,15 @@
 				display:none;
 			}
 			
+			.report {
+				max-width:210mm;
+				margin: 10pt auto;
+			}
+			
 			.site {
 				margin-bottom: 5em;
 				border:2pt solid #999;
 				max-width:210mm;
-				margin: 10pt auto;
 				overflow:hidden;
 			}
 			
@@ -230,44 +234,44 @@
 	</head>
 	<body>
 	
-		
-		<h1>Prepplista för <<
-		
-		
-			function getWeekNumber {
-				param($date)
-				
-				$d1 = [datetime]::new($date.Year, 1, 1)
-				
-				$w1ds = (7 - $d1.DayOfWeek.value__) % 7 + 1
-				
-				$wnds = ($date.DayOfWeek.value__)
-				if ($wnds -eq 0) { $wnds = 7 }
-				
-				return ($date.DayOfyear - $w1ds - $wnds) / 7 + 2
-			}
+		<div class="report">
+			<h1>Prepplista för <<
 			
-			$sd = $StartDate
-			$ed = $EndDate
 			
-			$sw = getWeekNumber $sd
-			$ew = getWeekNumber $ed
+				function getWeekNumber {
+					param($date)
+					
+					$d1 = [datetime]::new($date.Year, 1, 1)
+					
+					$w1ds = (7 - $d1.DayOfWeek.value__) % 7 + 1
+					
+					$wnds = ($date.DayOfWeek.value__)
+					if ($wnds -eq 0) { $wnds = 7 }
+					
+					return ($date.DayOfyear - $w1ds - $wnds) / 7 + 2
+				}
+				
+				$sd = $StartDate
+				$ed = $EndDate
+				
+				$sw = getWeekNumber $sd
+				$ew = getWeekNumber $ed
+				
+				if ($ew -eq $sw) {
+					"V{0}" -f $sw
+				} else {
+					"V{0}-{1}" -f $sw, $ew
+				}
+			>> </h1>
 			
-			if ($ew -eq $sw) {
-				"V{0}" -f $sw
-			} else {
-				"V{0}-{1}" -f $sw, $ew
-			}
-		>> </h1>
-		
-		<span> << "{0:yyyy-MM-dd}" -f $StartDate >> till << "{0:yyyy-MM-dd}" -f $EndDate >> </span>
-		
-		<<($templateDir\SetupList.active\body.ps1)>>
-		
-		<div id="footer">
-			<< $Values.RenderEndish = [datetime]::now >>
-			Renderad << "{0:yyyy-MM-dd, kl HH:mm}" -f [datetime]::now >> av <<whoami>> på <<$env:COMPUTERNAME>> (tog << '{0:n2}' -f ($Values.RenderEndish - $Values.RenderStart).TotalSeconds >> sekunder). 
+			<span> << "{0:yyyy-MM-dd}" -f $StartDate >> till << "{0:yyyy-MM-dd}" -f $EndDate >> </span>
+			
+			<<($templateDir\SetupList.active\body.ps1)>>
+			
+			<div id="footer">
+				<< $Values.RenderEndish = [datetime]::now >>
+				Renderad << "{0:yyyy-MM-dd, kl HH:mm}" -f [datetime]::now >> av <<whoami>> på <<$env:COMPUTERNAME>> (tog << '{0:n2}' -f ($Values.RenderEndish - $Values.RenderStart).TotalSeconds >> sekunder). 
+			</div>
 		</div>
-		
 	</body>
 </html>
