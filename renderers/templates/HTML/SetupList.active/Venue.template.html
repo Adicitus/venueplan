@@ -7,7 +7,7 @@
 	
 	<div class="classes">
 	<<
-		$Classes | Sort startdate | % {
+		$Classes | Sort { [datetime]$_.startdate } | % {
 			$class = $_
 			
 			if ( ($bookings[$class.Id] | ? venuename -eq $VenueName )) {
