@@ -245,10 +245,17 @@
 					
 					$w1ds = (7 - $d1.DayOfWeek.value__) % 7 + 1
 					
+					if ($date -lt $d1.AddDays($w1ds)) {
+						# Any days belonging to the last week of last year
+						# are counted as part of that week (week 53) and not
+						# first week of the current year (week 1).
+						return 53
+					}
+					
 					$wnds = ($date.DayOfWeek.value__)
 					if ($wnds -eq 0) { $wnds = 7 }
-					
-					return ($date.DayOfyear - $w1ds - $wnds) / 7 + 2
+
+					return ($date.DayOfyear - $w1ds - $wnds) / 7 + 1
 				}
 				
 				$sd = $StartDate
