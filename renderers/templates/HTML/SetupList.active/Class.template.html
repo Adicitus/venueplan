@@ -46,12 +46,10 @@ $Values.renderPreFormatted = $renderPreFormatted
 
 <div class="class">
 	<div class="class_status">
-		<div class="checklist">
-			<div class="checkbox"></div>
-			<div class="checkbox"></div>
-			<div class="checkbox"></div>
-			<div class="checkbox"></div>
-			<div class="checkbox"></div>
+		<div class="classnumber">
+			<<
+				$Values.Class.classnumber
+			>>
 		</div>
 		<div class="weekdays">
 			<<
@@ -64,7 +62,7 @@ $Values.renderPreFormatted = $renderPreFormatted
 		<div class="classtitle">
 			<a
 				href="<<
-					'http://crm.addskills.se/Cornerstone/main.aspx?etc=10020&extraqs=%3Fetc%3D10020%26id%3D%257b{0}%257d&pagetype=entityrecord' -f $class.Id
+					'https://cornerstone.crm4.dynamics.com/main.aspx?appid=bf624f81-ca84-ec11-8d21-6045bd8b64a9&forceUCI=1&pagetype=entityrecord&etn=cint_course_date&id={0}' -f $class.Id
 				>>"
 				target="<<$class.id>>"
 			>
@@ -93,46 +91,17 @@ $Values.renderPreFormatted = $renderPreFormatted
 			
 
 			$studentCount = $Students | measure | % Count
-			$masterStudents = $Students | ? { !($_.is_athome -or $_.sitename) }
-			$studentCountAtHome = $Students | ? { $_.is_athome } | Measure | % Count
-			$remoteStudents = @{}
+			$masterStudents = $Students | ? { $_.type -ne 717640001 }
+			$studentCountAtHome = $Students | ? { $_.type -eq 717640001 } | Measure | % Count
 			
-			$Students| % {
-				$s = $_
-				
-				if ($s.sitename) {
-					if ($remoteStudents.containsKey($s.sitename)) {
-						$remoteStudents[$s.sitename] += $s
-					} else {
-						$remoteStudents[$s.sitename] = @($s)
-					}
-				}
-				
-			}
+			$localStudentCount = $masterStudents | measure | % Count
 			
-			$isSatellite = $remoteStudents.Keys -contains $SiteName
-			$isMaster = !$isSatellite -and ( ($remoteStudents.Keys -gt 0) -or ($studentCountAtHome -gt 0) )
-			
-			$localStudentCount = if ($isSatellite) {
-				$remoteStudents[$SiteName] | measure | % Count
-			} else {
-				$masterStudents | measure | % Count
-			}
-			
-			$atHomeValue = if ($studentCountAtHome) { ("{0}x@Home" -f $studentCountAtHome) } else { "" }
-			$satelliteValue = ($remoteStudents.Keys | % { "{1}x{0}" -f $_, $remoteStudents[$_].Count }) -join " "
-			$localStudentValue = if ($isSatellite) { "{0} [LC]" -f $localStudentCount } else { "{0}" -f $localStudentCount }
-			$v = if ($isSatellite -or !$isMaster) {
-				"{0}" -f @(
-					$localStudentValue
-				)
-			} else {
-				"{0} + {1} {2}" -f @(
-					$localStudentValue,
-					$atHomeValue,
-					$satelliteValue
-				)
-			}
+			$atHomeValue = if ($studentCountAtHome) { ("+ {0}x@Home" -f $studentCountAtHome) } else { "" }
+			$localStudentValue = "$localStudentCount"
+			$v = "{0} {1}" -f @(
+				$localStudentValue,
+				$atHomeValue
+			)
 			
 			& $renderProperty "reservations" "Deltagare:" $v
 			

@@ -1,7 +1,7 @@
 {
-	param($StartDate, $EndDate, $SiteFilter="*")
+	param([datetime]$StartDate, [datetime]$EndDate, $SiteFilter="*")
 	
-	Render-Template "$PSScriptRoot\templates\HTML\SetupList.active.template.html" @{
+	Render-Template -TemplatePath "$PSScriptRoot\templates\HTML\SetupList.active.template.html" -Values @{
 		StartDate=$StartDate
 		EndDate=$EndDate
 		SiteFilter=$SiteFilter

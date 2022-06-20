@@ -1,14 +1,12 @@
-
 $siteNames = GetContent @{
     name="site"
     attributes = "name"
 } | % name
 
 $siteNames += GetContent @{
-    name="cint_venue_category"
+    name="cint_site"
     attributes = "cint_name"
 } | % Name
-
 
 $selectedSites = @()
 $siteNames | ? {
@@ -22,8 +20,9 @@ $siteNames | ? {
     $selectedSites += $_
 }
 
-
 $dataLoadStartTime = [datetime]::Now
+
+$classesLoadStartTime = [datetime]::Now
 
 $classes = GetContent @{
     name="cint_course_date"
@@ -50,6 +49,7 @@ $classes = GetContent @{
     
     LinkEntities = @(
         @{
+            'link-type'='outer'
             name="site"
             to="cint_site_id"
         
@@ -67,6 +67,8 @@ $classes = GetContent @{
         }
     )
 }
+
+"<!-- Classes loaded: {0:N2} seconds -->" -f ([datetime]::Now - $classesLoadStartTime).TotalSeconds
 
 $classIds = $classes | % id | % guid
 $courseIds = $classes | % courseid
@@ -89,12 +91,13 @@ if (!$classIds) {
 }
 
 # VENUES
+$venuesLoadStartTime = [datetime]::Now
 GetContent @{
     name="cint_venue_booking"
     
     Attributes = @(
         @{ name="cint_course_date_id"; alias="_classId" }
-        @{ name="cs_mastervenue"; alias="is_master" }
+        # @{ name="cs_mastervenue"; alias="is_master" }
     )
     
     Conditions = @(
@@ -110,8 +113,8 @@ GetContent @{
         
         
         LinkEntities = @{
-            name="cint_venue_category"
-            to="cint_venue_category_id"
+            name="cint_site"
+            to="cint_site_id"
             
             Attributes=@{ name="cint_name"; alias="sitename" }
 
@@ -128,6 +131,8 @@ GetContent @{
     $bookings[$cid] += $_
 }
 
+"<!-- Venues loaded: {0:N2} seconds -->" -f ([datetime]::Now - $venuesLoadStartTime).TotalSeconds
+
 $bookings.keys | % { $bookings[$_] } | % {
     if (-not $bookingsBySite.ContainsKey($_.sitename)) {
         $bookingsBySite[$_.sitename] = @()
@@ -137,12 +142,13 @@ $bookings.keys | % { $bookings[$_] } | % {
 }
 
 # STUDENTS
+$studentsLoadStartTime = [datetime]::Now
 GetContent @{
     name="cint_course_reservation"
     
     Attributes = @(
         @{ name="cint_course_date_id"; alias="_classId"}
-        @{ name="cs_remote_participant"; alias="is_athome" }
+        @{ name="cs_participation_type"; alias="type" }
     )
     
     Conditions=@(
@@ -150,20 +156,6 @@ GetContent @{
         @{a="cint_contact_id"; o="not-null"}
         @{a="cint_reservationstatus"; o="eq"; v=20}
     )
-    
-    LinkEntities = @{
-        "link-type"="outer"
-        name="cint_venue_booking"
-        to="cs_course_reservation_id"
-
-        LinkEntities=@{
-            "link-type"="outer"
-            name="cint_venue"
-            to="cint_venue_id"
-
-            Attributes=@{name="cint_visitingcity"; alias="sitename"}
-        }
-    }
 } | % {
     $cid = $_._classId.Id
     if (-not $students.ContainsKey($cid)) {
@@ -172,6 +164,8 @@ GetContent @{
 
     $students[$cid] += $_
 }
+
+"<!-- Students loaded: {0:N2} seconds -->" -f ([datetime]::Now - $studentsLoadStartTime).TotalSeconds
 
 GetContent @{
     name="annotation"
@@ -209,6 +203,9 @@ GetContent @{
     } 
 }
 
+
+# ANNOTATIONS
+$notesLoadStartTime = [datetime]::Now
 GetContent @{
     name="annotation"
 
@@ -229,7 +226,7 @@ GetContent @{
         }
     }
 
-    switch ($annotation.subject) {
+    switch ($annotation.Name) {
         "deploy.note" {
             $Annotations[$cid].Class += $annotation
         }
@@ -244,6 +241,7 @@ GetContent @{
         }
     }
 }
+"<!-- Notes loaded: {0:N2} seconds -->" -f ([datetime]::Now - $notesLoadStartTime).TotalSeconds
 
 $dataLoadEndTime = [datetime]::Now
 
